@@ -55,11 +55,17 @@ int main() {
     // Diffie-Hellman key exchange
     DH_Params dh_params;
     recv(new_socket, &dh_params, sizeof(DH_Params), 0);
+    printf("params received: %lu %lu\n", dh_params.g , dh_params.p);
+    uint64_t priv_key = generate_private_key(dh_params.p-1);
+    printf("private key: %lu\n", priv_key);
+    uint64_t server_pub_key = generate_public_key(dh_params, priv_key);
+    send(new_socket, &server_pub_key, sizeof(uint64_t), 0);
     uint64_t client_pub_key;
     recv(new_socket, &client_pub_key, sizeof(uint64_t), 0);
-    shared_secret = compute_shared_secret(dh_params, client_pub_key);
+    printf("client public key: %lu\n", client_pub_key);
+    shared_secret = compute_shared_secret(dh_params, client_pub_key,priv_key);
     changeTextItalic();
-    printf("private key: %lu\n", dh_params.priv_key);
+    
     printf("Shared Diffie Hellman key: %lu\n", shared_secret);
 
     pthread_t recv_thread;

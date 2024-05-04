@@ -1,6 +1,7 @@
 #include "diffiehellman.h"
 #include <stdlib.h>
 #include <time.h>
+#include <openssl/rand.h>
 
 // Define a primitive root modulo p (g)
 #define DH_GENERATOR 5
@@ -56,26 +57,41 @@ uint64_t mod_pow(uint64_t base, uint64_t exponent, uint64_t modulus) {
 
 // Function to generate DH parameters (p, g, and private key)
 DH_Params generate_dh_params() {
-    init_random_generator();
+    //init_random_generator();
     DH_Params dh_params;
     dh_params.p = generate_safe_prime(1000000); // Minimum safe prime
     dh_params.g = DH_GENERATOR;
-    dh_params.priv_key = 1 + rand() % (dh_params.p - 1); // Random private key
+    //dh_params.priv_key = 1 + rand() % (dh_params.p - 1); // Random private key
     return dh_params;
 }
 
 // Function to generate the public key based on DH parameters
-uint64_t generate_public_key(DH_Params dh_params) {
-    dh_params.pub_key = mod_pow(dh_params.g, dh_params.priv_key, dh_params.p);
+uint64_t generate_public_key(DH_Params dh_params ,uint64_t priv_key) {
+    dh_params.pub_key = mod_pow(dh_params.g, priv_key, dh_params.p);
     return dh_params.pub_key;
 }
 
 // Function to compute the shared secret key using DH parameters and public key
-uint64_t compute_shared_secret(DH_Params dh_params, uint64_t other_pub_key) {
-    uint64_t shared_secret = mod_pow(other_pub_key, dh_params.priv_key, dh_params.p);
+uint64_t compute_shared_secret(DH_Params dh_params, uint64_t other_pub_key, uint64_t priv_key) {
+    uint64_t shared_secret = mod_pow(other_pub_key, priv_key, dh_params.p);
     return shared_secret;
 }
 
 void init_random_generator() {
     srand(time(NULL));
+}
+
+
+
+// Function to generate a private key using a cryptographically secure random number generator
+uint64_t generate_private_key(uint64_t modulus) {
+    uint64_t private_key;
+    do {
+        if (RAND_bytes((unsigned char*)&private_key, sizeof(uint64_t)) != 1) {
+            fprintf(stderr, "Error generating random bytes\n");
+            exit(EXIT_FAILURE);
+        }
+        private_key %= modulus;
+    } while (private_key == 0); // Ensure the private key is not zero
+    return private_key;
 }

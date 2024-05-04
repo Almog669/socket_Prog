@@ -4,8 +4,8 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -Wextra
-
+CFLAGS = -Wall -Wextra -lssl -lcrypto
+LIBS = -lssl -lcrypto
 # Executables
 CLIENT = client
 SERVER = server
@@ -17,10 +17,10 @@ SERVER_SRC = server.c diffiehellman.c style.c
 all: $(CLIENT) $(SERVER)
 
 $(CLIENT): $(CLIENT_SRC)
-	$(CC) $(CFLAGS) -o $(CLIENT) $(CLIENT_SRC)
+	$(CC) $(CFLAGS) -o $(CLIENT) $(CLIENT_SRC) $(LIBS)
 
 $(SERVER): $(SERVER_SRC)
-	$(CC) $(CFLAGS) -o $(SERVER) $(SERVER_SRC)
+	$(CC) $(CFLAGS) -o $(SERVER) $(SERVER_SRC) $(LIBS)
 
 clean:
 	rm -f $(CLIENT) $(SERVER)

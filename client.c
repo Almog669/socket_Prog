@@ -39,12 +39,18 @@ int main() {
     }
 
     DH_Params dh_params = generate_dh_params();
+    
     send(sock, &dh_params, sizeof(DH_Params), 0);
-    uint64_t server_pub_key = generate_public_key(dh_params);
-    send(sock, &server_pub_key, sizeof(uint64_t), 0);
-    shared_secret = compute_shared_secret(dh_params, server_pub_key);
+    printf("params sent: %lu %lu\n", dh_params.g , dh_params.p);
+    uint64_t priv_key = generate_private_key(dh_params.p-1);
+    printf("private key: %lu\n", priv_key);
+    uint64_t server_public_key;
+    recv(sock, &server_public_key, sizeof(uint64_t), 0);
+    printf("server public key: %lu\n", server_public_key); 
+    uint64_t client_pub_key = generate_public_key(dh_params, priv_key);
+    send(sock, &client_pub_key, sizeof(uint64_t), 0); 
+    shared_secret = compute_shared_secret(dh_params, server_public_key,priv_key);
     changeTextItalic();
-    printf("private key: %lu\n", dh_params.priv_key);
     printf("Shared Diffie Hellman key: %lu\n", shared_secret);
 
     pthread_t recv_thread;
