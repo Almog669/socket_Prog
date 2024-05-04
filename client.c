@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <pthread.h>
 
-#include "Style.h"
+#include "style.h"
 #include "diffiehellman.h"
 
 #define PORT 8080
@@ -15,23 +15,7 @@
 int sock = 0;
 uint64_t shared_secret;
 char buffer[BUFFER_SIZE] = {0};
-
-// Function to handle receiving messages from server
-void *receive_messages() {
-    while (1) {
-        int valread = recv(sock, buffer, BUFFER_SIZE, 0);
-        if (valread <= 0) {
-            break;
-        }
-        changeTextRed();
-        printf("\nServer: %s", buffer);
-        changeTextblue();
-        printf("Enter message: ");
-        fflush(stdout);
-        memset(buffer, 0, BUFFER_SIZE);
-    }
-    pthread_exit(NULL);
-}
+void *receive_messages();
 
 int main() {
     struct sockaddr_in serv_addr;
@@ -60,6 +44,7 @@ int main() {
     send(sock, &server_pub_key, sizeof(uint64_t), 0);
     shared_secret = compute_shared_secret(dh_params, server_pub_key);
     changeTextItalic();
+    printf("private key: %lu\n", dh_params.priv_key);
     printf("Shared Diffie Hellman key: %lu\n", shared_secret);
 
     pthread_t recv_thread;
@@ -80,4 +65,22 @@ int main() {
     pthread_join(recv_thread, NULL);
     close(sock);
     return 0;
+}
+
+
+// Function to handle receiving messages from server
+void *receive_messages() {
+    while (1) {
+        int valread = recv(sock, buffer, BUFFER_SIZE, 0);
+        if (valread <= 0) {
+            break;
+        }
+        changeTextRed();
+        printf("\nServer: %s", buffer);
+        changeTextblue();
+        printf("Enter message: ");
+        fflush(stdout);
+        memset(buffer, 0, BUFFER_SIZE);
+    }
+    pthread_exit(NULL);
 }

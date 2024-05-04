@@ -3,7 +3,10 @@
         "diffiehellman.h": "c",
         "in.h": "c",
         "socket.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "style.h": "c",
+        "stdio.h": "c",
+        "pthread.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
