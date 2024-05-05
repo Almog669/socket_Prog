@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <openssl/rand.h>
+#include <stdbool.h>
+#include <netinet/in.h>
 
 // Define a primitive root modulo p (g)
 #define DH_GENERATOR 5
@@ -12,7 +14,8 @@
 uint64_t generate_safe_prime(uint64_t min_p) {
     // Ensure min_p is odd
     uint64_t p = (min_p % 2 == 0) ? min_p + 1 : min_p;
-    
+    //p += rand() % 100;
+
     while (1) {
         // Check if p is prime
         int is_prime = 1;
@@ -57,18 +60,17 @@ uint64_t mod_pow(uint64_t base, uint64_t exponent, uint64_t modulus) {
 
 // Function to generate DH parameters (p, g, and private key)
 DH_Params generate_dh_params() {
-    //init_random_generator();
+    init_random_generator();
     DH_Params dh_params;
-    dh_params.p = generate_safe_prime(1000000); // Minimum safe prime
+    dh_params.p = generate_safe_prime(time(NULL)); // Minimum safe prime
     dh_params.g = DH_GENERATOR;
-    //dh_params.priv_key = 1 + rand() % (dh_params.p - 1); // Random private key
     return dh_params;
 }
 
 // Function to generate the public key based on DH parameters
 uint64_t generate_public_key(DH_Params dh_params ,uint64_t priv_key) {
-    dh_params.pub_key = mod_pow(dh_params.g, priv_key, dh_params.p);
-    return dh_params.pub_key;
+    uint64_t pub_key = mod_pow(dh_params.g, priv_key, dh_params.p);
+    return pub_key;
 }
 
 // Function to compute the shared secret key using DH parameters and public key
@@ -77,7 +79,7 @@ uint64_t compute_shared_secret(DH_Params dh_params, uint64_t other_pub_key, uint
     return shared_secret;
 }
 
-void init_random_generator() {
+void init_random_generator(){
     srand(time(NULL));
 }
 
@@ -95,3 +97,4 @@ uint64_t generate_private_key(uint64_t modulus) {
     } while (private_key == 0); // Ensure the private key is not zero
     return private_key;
 }
+

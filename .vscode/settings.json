@@ -7,7 +7,11 @@
         "style.h": "c",
         "stdio.h": "c",
         "pthread.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "unistd.h": "c",
+        "rand.h": "c",
+        "stdint.h": "c",
+        "inet.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

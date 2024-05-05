@@ -13,9 +13,10 @@
 #define BUFFER_SIZE 1024
 
 int new_socket = 0;
-uint64_t shared_secret;
 char buffer[BUFFER_SIZE] = {0};
 void *receive_messages();
+void server_DiffieHellmanHandshake(int new_socket);
+void server_test(int new_socket);
 
 int main() {
     int server_fd;
@@ -51,23 +52,8 @@ int main() {
         perror("accept");
         exit(EXIT_FAILURE);
     }
-
-    // Diffie-Hellman key exchange
-    DH_Params dh_params;
-    recv(new_socket, &dh_params, sizeof(DH_Params), 0);
-    printf("params received: %lu %lu\n", dh_params.g , dh_params.p);
-    uint64_t priv_key = generate_private_key(dh_params.p-1);
-    printf("private key: %lu\n", priv_key);
-    uint64_t server_pub_key = generate_public_key(dh_params, priv_key);
-    send(new_socket, &server_pub_key, sizeof(uint64_t), 0);
-    uint64_t client_pub_key;
-    recv(new_socket, &client_pub_key, sizeof(uint64_t), 0);
-    printf("client public key: %lu\n", client_pub_key);
-    shared_secret = compute_shared_secret(dh_params, client_pub_key,priv_key);
-    changeTextItalic();
-    
-    printf("Shared Diffie Hellman key: %lu\n", shared_secret);
-
+    //server_DiffieHellmanHandshake(new_socket);
+    server_test(new_socket);
     pthread_t recv_thread;
     pthread_create(&recv_thread, NULL, receive_messages, NULL);
 
@@ -105,4 +91,38 @@ void *receive_messages() {
         memset(buffer, 0, BUFFER_SIZE);
     }
     pthread_exit(NULL);
+}
+
+void server_DiffieHellmanHandshake(int new_socket){
+    uint64_t shared_secret;
+    DH_Params dh_params;
+    recv(new_socket, &dh_params, sizeof(DH_Params), 0);
+    printf("params received: %lu %lu\n", dh_params.g , dh_params.p);
+    uint64_t priv_key = generate_private_key(dh_params.p-1);
+    printf("private key: %lu\n", priv_key);
+    uint64_t server_pub_key = generate_public_key(dh_params, priv_key);
+    send(new_socket, &server_pub_key, sizeof(uint64_t), 0);
+    uint64_t client_pub_key;
+    recv(new_socket, &client_pub_key, sizeof(uint64_t), 0);
+    printf("client public key: %lu\n", client_pub_key);
+    shared_secret = compute_shared_secret(dh_params, client_pub_key,priv_key);
+    changeTextItalic();
+    printf("Shared Diffie Hellman key: %lu\n", shared_secret);
+}
+
+void server_test(int new_socket){
+    uint64_t shared_secret;
+    DH_Params dh_params;
+    recv(new_socket, &dh_params, sizeof(DH_Params), 0);
+    printf("params received: %lu %lu\n", dh_params.g , dh_params.p);
+    uint64_t priv_key = 13;
+    printf("private key: %lu\n", priv_key);
+    uint64_t server_pub_key = generate_public_key(dh_params, priv_key);
+    send(new_socket, &server_pub_key, sizeof(uint64_t), 0);
+    uint64_t client_pub_key;
+    recv(new_socket, &client_pub_key, sizeof(uint64_t), 0);
+    printf("client public key: %lu\n", client_pub_key);
+    shared_secret = compute_shared_secret(dh_params, client_pub_key,priv_key);
+    changeTextItalic();
+    printf("Shared Diffie Hellman key: %lu\n", shared_secret);
 }

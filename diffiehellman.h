@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+
 // Define the maximum length for the shared key
 #define DH_SHARED_KEY_LEN 256
 
@@ -11,8 +12,6 @@
 typedef struct {
     uint64_t p; // Prime number
     uint64_t g; // Generator
-    uint64_t pub_key; // Public key
-    //uint64_t priv_key; // Private key
 } DH_Params;
 
 // Function to generate DH parameters (p, g, and private key)
@@ -29,4 +28,5 @@ uint64_t generate_safe_prime(uint64_t min_p);
 uint64_t generate_private_key(uint64_t modulus);
 
 void init_random_generator();
+
 #endif
